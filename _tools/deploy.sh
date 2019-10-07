@@ -79,6 +79,42 @@ while getopts ":fash" opt; do
   esac
 done
 
+function sync_img() {
+  if [ -d "$local_source/$img_path" ];
+  then
+    echo 
+    echo "Syncing img files..."
+    aws s3 sync "$local_source/$img_path" "$TARGET_BUCKET/$img_path" $dryrun  --region "$AWS_DEFAULT_REGION" --cache-control "$cache_control"  --exclude ".DS_Store"
+  fi
+}
+
+function sync_js() {
+    if [ -d "$local_source/$js_path" ];
+    then
+        echo 
+        echo "Syncing js files..."
+        aws s3 sync "$local_source/$js_path" "$TARGET_BUCKET/$img_path" $dryrun  --region "$AWS_DEFAULT_REGION" --cache-control "$cache_control" --exclude ".DS_Store"
+    fi
+}
+
+function sync_fonts() {
+    if [ -d "$local_source/$fonts_path" ];
+    then
+        echo 
+        echo "Syncing font files..."
+        aws s3 sync "$local_source/$fonts_path" "$TARGET_BUCKET/$img_path" $dryrun  --region "$AWS_DEFAULT_REGION" --cache-control "$cache_control" --exclude ".DS_Store"
+    fi
+}
+
+function sync_css() {
+    if [ -d "$local_source/$css_path" ];
+    then
+        echo 
+        echo "Syncing CSS files..."
+        aws s3 sync "$local_source/$css_path" "$TARGET_BUCKET/$css_path" $dryrun  --region "$AWS_DEFAULT_REGION" --cache-control "$cache_control" --exclude ".DS_Store"
+    fi
+}
+
 if [ $force_sync == 1 ]; 
 then
     dryrun=""
@@ -86,74 +122,33 @@ fi
 
 if [ "$mode" == "all" ];
 then
+    echo
+    echo "Syncing everything. Please standby."
+
     echo 
     echo "Syncing files..."
-    aws s3 sync "$local_source" "$TARGET_BUCKET/" $dryrun  --region "$AWS_DEFAULT_REGION" --exclude "*.jpg" --exclude "*.css" --exclude "png" --exclude ".DS_Store"
+    aws s3 sync "$local_source" "$TARGET_BUCKET/" $dryrun  --region "$AWS_DEFAULT_REGION" --exclude "*.js" --exclude "*.jpg" --exclude "*.css" --exclude "png" --exclude ".DS_Store"
 
-    if [ -d "$local_source/$img_path" ];
-    then
-        echo 
-        echo "Syncing img files..."
-        aws s3 sync "$local_source/$img_path" "$TARGET_BUCKET/$img_path" $dryrun  --region "$AWS_DEFAULT_REGION" --cache-control "$cache_control"  --exclude ".DS_Store"
-    fi
+    sync_img
+    sync_js
+    sync_fonts
+    sync_css
 
-    if [ -d "$local_source/$js_path" ];
-    then
-        echo 
-        echo "Syncing js files..."
-        aws s3 sync "$local_source/$js_path" "$TARGET_BUCKET/$img_path" $dryrun  --region "$AWS_DEFAULT_REGION" --cache-control "$cache_control" --exclude ".DS_Store"
-    fi
-
-    if [ -d "$local_source/$fonts_path" ];
-    then
-        echo 
-        echo "Syncing font files..."
-        aws s3 sync "$local_source/$fonts_path" "$TARGET_BUCKET/$img_path" $dryrun  --region "$AWS_DEFAULT_REGION" --cache-control "$cache_control" --exclude ".DS_Store"
-    fi
-
-    if [ -d "$local_source/$css_path" ];
-    then
-        echo 
-        echo "Syncing CSS files..."
-        aws s3 sync "$local_source/$css_path" "$TARGET_BUCKET/$css_path" $dryrun  --region "$AWS_DEFAULT_REGION" --cache-control "$cache_control" --exclude ".DS_Store"
-    fi
 fi
 
 if [ "$mode" == "asset" ];
 then
-
-    if [ -d "$local_source/$img_path" ];
-    then
-        echo 
-        echo "Syncing img files..."
-        aws s3 sync "$local_source/$img_path" "$TARGET_BUCKET/$img_path" $dryrun  --region "$AWS_DEFAULT_REGION" --cache-control "$cache_control" --exclude ".DS_Store"
-    fi
-
-    if [ -d "$local_source/$fonts_path" ];
-    then
-        echo 
-        echo "Syncing font files..."
-        aws s3 sync "$local_source/$fonts_path" "$TARGET_BUCKET/$img_path" $dryrun  --region "$AWS_DEFAULT_REGION" --cache-control "$cache_control" --exclude ".DS_Store"
-    fi
+    sync_img
+    sync_fonts
 fi
 
 if [ "$mode" == "CSS" ];
 then
-    if [ -d "$local_source/$css_path" ];
-    then
-        echo 
-        echo "Syncing CSS files..."
-        aws s3 sync "$local_source/$css_path" "$TARGET_BUCKET/$css_path" $dryrun  --region "$AWS_DEFAULT_REGION" --cache-control "$cache_control" --exclude ".DS_Store"
-    fi
+    sync_css
 fi
 
 if [ "$mode" == "JS" ];
 then
-    if [ -d "$local_source/$js_path" ];
-    then
-        echo 
-        echo "Syncing js files..."
-        aws s3 sync "$local_source/$js_path" "$TARGET_BUCKET/$img_path" $dryrun  --region "$AWS_DEFAULT_REGION" --cache-control "$cache_control" --exclude ".DS_Store"
-    fi
+    sync_js
 fi
 
