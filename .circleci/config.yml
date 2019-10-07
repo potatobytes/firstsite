@@ -9,23 +9,6 @@ jobs:
     - run:
         name: List files
         command: ls -l ~/website
-    - save_cache:
-        key: firstsite-{{ .Revision }}
-        paths:
-          - ~/website
-  staging:
-    environment:
-      TARGET_BUCKET: s3://sillyrandomsite.com
-    working_directory: ~/website
-    docker:
-    - image: visualdensity/awscli:1.1
-    steps:
-    - restore_cache:
-        keys: 
-          - firstsite-{{ .Revision }}
-    - run:
-        name: List files
-        command: ls -l ~/website
     - run:
         name: Pushing to S3
         command: _tools/deploy.sh -f
@@ -34,4 +17,3 @@ workflows:
   workflow:
     jobs:
     - build
-    - staging
